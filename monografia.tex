@@ -126,7 +126,7 @@ modificação no código.
     \includegraphics[scale=0.3]{imgs/breakout.png}
     \includegraphics[scale=0.525]{imgs/montezuma.png}
     \caption{\textit{Breakout} (à esquerda) e \textit{Montezuma's Revenge} (à direita) no Atari
-    2600. \textit{Fonte:} \url{http://en.wikipedia.org/} e \url{http://www.atariprotos.comi/}}
+    2600. \textit{Fonte:} \url{http://en.wikipedia.org/} e \url{http://www.atariprotos.com/}}
   }
 \end{figure}
 
@@ -406,6 +406,65 @@ Usando a equação de Bellman no nosso exemplo do robô, temos que, no estado in
 Após calcularmos as utilidades de cada estado vemos que a melhor decisão é ir para cima.
 
 \section{Aprendizado Baseado em Reforço}
+
+Considere uma chipanzé que daremos o nome de Lucy. Um grupo de cientistas deseja testar a
+inteligência de Lucy por meio de aprendizado baseado em reforço. Para isso eles devem ter um
+objetivo para Lucy: existem três botões, $A$, $B$ e $C$; o objetivo é apertar os três botões na
+sequência $B$, $A$, $C$. =
+
+Vamos considerar a sequência $ABC$ como apertar os botões $A$, $B$ e $C$ nesta ordem. Esta regra
+vale também para todas as outras combinações de sequência. Vamos considerar o $i$-ésimo botão como
+o botão da posição $i$ na sequência. Por exemplo, o botão $i=0$ em $CAB$ é $C$, enquanto que o
+botão $i=2$ em $BAC$ é $C$.
+
+No entanto, a linguagem dos chipanzés difere radicalmente da do grupo de cientistas, e portanto
+eles precisam transmitir o conhecimento de que a sequência $BAC$ é a meta através de uma linguagem
+universal: bananas. Os testes de Lucy são feitos diariamente, ou seja, cada dia é um teste. Em cada
+teste Lucy deve apertar alguma combinação de três botões. Porém, em cada teste, se o $i$-ésimo
+botão que Lucy apertar corresponder ao $i$-ésimo botão da sequência meta, então os cientistas dão
+um pedaço de banana para Lucy. Se Lucy completar a sequência completa em um teste, os cientistas
+dão uma banana inteira para Lucy.
+
+O exemplo acima ilustra o uso de aprendizado baseado em reforço. A sequência de botões corresponde
+aos estados $S$, as ações de apertar o $i$-ésimo botão corresponde as ações $A(i)$ no estado $i$,
+as recompensas $R(s,a)$ no estado $s$ correspondem às recompensas $R(s,a)$ e o modelo de transição
+$P(s'|s,a)$ corresponde a probabilidade de Lucy ir ao próximo estado dado que ela executou a ação
+$a$ de apertar um botão e dado que ela estava no estado $s$.
+
+Podemos ver que temos as ações $A(s)$ e os estados possíveis $S$ especificados no problema, no
+entanto não sabemos como nosso modelo de transição funciona. Além disso, sabíamos quanto de
+recompensa dar a Lucy pois sabíamos quais passos dar para chegarmos a meta. No entanto, considere
+um problema que não sabemos como chegar a meta, apenas que chegamos (neste caso Lucy apenas
+receberia a recompensa quando chegasse em $BAC$). Neste caso queremos também achar $R(s,a)$.
+
+É fácil notar que queremos achar uma MDP que tenha um modelo de transição e recompensa ideais para
+chegarmos a meta de forma ótima. Portanto, o que realmente desejamos é achar uma política ótima que
+nos dê a maior recompensa.
+
+\begin{equation*}
+  \pi^*(s) = \argmax_\pi U^\pi(s) = \argmax_a [R(s, a) + \gamma U^*(s')]
+\end{equation*}
+
+No entanto, não sabemos como são $R(s, a)$ e $U^*(s')$. Por isso podemos ver aprendizado por
+reforço como um problema de se aprender $R(s, a) + \gamma U^*(s')$. Vamos chamar esta expressão
+de $Q^*(s, a)$. Queremos, então, achar a melhor política $\pi^*$ tal que:
+
+\begin{align*}
+  &Q^*(s, a) = R(s, a) + \gamma \sum_{s'} P(s'|s,a) \max_{a'} Q^*(s', a') \\
+  &\pi^*(s) = \argmax_a Q^*(s, a)
+\end{align*}
+
+Podemos criar um algoritmo que seleciona uma ação $a$ e a executa no estado $s$, recebe uma
+recompensa $R(s,a)$ e em seguida atualiza $Q(s,a)$ com os novos dados encontrados. Este algoritmo
+é chamado de Q-learning, e podemos fazer a atualização de $Q$ da seguinte forma:
+
+\begin{equation*}
+  Q(s, a) \gets (1-\alpha)Q(s,a) + \alpha[R(s,a) + \gamma \max_a Q(s', a')]
+\end{equation*}
+
+Onde $\alpha$ é chamada de taxa de aprendizado, e é normalmente igual a 0.1. Uma taxa de
+aprendizado alta indica que o algoritmo considera mais os novos termos ao que foi visto antes. Uma
+taxa baixa de aprendizado indica que o algoritmo considera mais a média de termos vistos.
 
 \newpage
 \printbibliography
