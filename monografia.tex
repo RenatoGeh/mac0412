@@ -185,7 +185,7 @@ seguinte tabela de probabilidades condicionais:
 \begin{table}[h]
   \begin{center}
     \begin{tabular}{l | c  c}
-      Animal & $P(Animal=x | Come=grama)$ & $(Animal=x | Come=carne)$ \\
+      Animal & $P(Animal=x | Come=grama)$ & $P(Animal=x | Come=carne)$ \\
       \hline
       Cabra & 0.857 & 0.00 \\
       Humano & 0.143 & 0.250 \\
@@ -248,6 +248,164 @@ quando exposta a valores novos. O caso contrário, \textit{underfitting}, ocorre
 um conjunto de treino que cobre uma parte razoável dos possíveis valores.
 
 \section{Processos de Decisão Markovianos}
+
+Processos de Decisão Markovianos, que chamaremos de MDPs a partir de agora, são um jeito de se
+representar o mundo e as decisões que impactam neste mundo. MDPs são utilizadas para demonstrar
+escolhas de decisões complexas em um espaço de estado estocástico. Nesta seção iremos primeiro
+definir o que uma função de utilidade significa, em seguida vamos mostrar algumas notações usadas
+em MDPs, e finalmente vamos ver como achar a melhor decisão em cada estado de uma MDP.
+
+\subsection{Função de Utilidade}
+
+Tomemos como exemplo o mundo de João. João adora doces e decidiu ir a doceria. No entanto a doceria
+possui uma grande variedade de doces, e apesar de João querer comprar todos os doces, ele possue
+uma quantidade finita de dinheiro, infelizmente. Portanto, João deseja maximizar o aproveitamento
+de doces limitado pela quantidade de dinheiro que ele possue.
+
+Digamos que João gosta de caramelo, mas em qualquer situação João prefere trufa de chocolate à
+caramelo. Analogamente, João prefere alfajores exclusivamente a trufas de chocolate. Mas quando
+se trata de brigadeiros, João não tem preferência entre brigadeiros e trufas. Podemos representar o
+mundo de João como:
+
+\begin{align*}
+  &Alfajor \succ Trufa &\text{João prefere Alfajor a Trufa.} \\
+  &Brigadeiro \sim Trufa &\text{João é indiferente entre Brigadeiro e Trufa.} \\
+  &Alfajor \succ Caramelo &\text{João prefere Alfajor a Caramelo por transitividade.}\\
+\end{align*}
+
+Preferenciabilidade possue seis axiomas que iremos apenas enumerar:
+
+\begin{enumerate}
+  \item Orderabilidade
+  \item Transitividade
+  \item Continuidade
+  \item Substitutabilidade
+  \item Monotonicidade
+  \item Decomponibilidade
+\end{enumerate}
+
+Pode-se ler mais sobre os axiomas na subseção 16.2.1 do livro \textit{Artificial Intelligence: A
+Modern Approach}\cite{aima}.
+
+A partir dos axiomas de preferência podemos construir uma função de utilidade que representa as
+preferências de um agente. De fato, a partir dos axiomas podemos construir as seguintes
+consequências para funções de utilidade\footnote{A prova para estas construções podem ser lidas em
+\textit{Theory of Games and Economic Behavior}\cite{neumann-morgenstern}}:
+
+\begin{itemize}
+  \item \textbf{Existência de uma função de utilidade}: Se um agente obedece os axiomas de
+    utilidade então existe uma função de utilidade que $U$ tal que $U(A) > U(B)$ se e somente se
+    $A \succ B$. Analogamente existe um $U$ tal que $U(A) = U(B)$ se e somente se $A \sim B$.
+  \item \textbf{Utilidade esperada de uma loteria}: A utilidade de uma loteria é a soma das
+    probabilidades dos possíveis resultados vezes a utilidade do resultado. Ou seja, $U(L=[p_1,S_1;
+    ...;p_n,S_n]) = \sum_i p_iU(S_i)$.
+\end{itemize}
+
+Uma loteria $L$ é o conjuntod de todos os possíveis resultados que podem ocorrer com suas
+respectivas probabilidades, ou seja, $L = [p_1,S_1;...;p_n,S_n]$, onde $p_1,...,p_n$ são as
+probabilidades dos resultados $S_1,...,S_n$.
+
+Podemos também chamar a utilidade esperada de uma ação $S_i$ como $EU(S_i)$. Se queremos achar a
+melhor ação $a^*$ que maximize a utilidade esperada, então queremos:
+
+\begin{equation*}
+  a^* = \argmax_a EU(a|\mathbf{e})
+\end{equation*}
+
+Ou seja, queremos a melhor ação que dê uma utilidade esperada maximal dada uma evidência de
+variáveis observáveis $\mathbf{e}$.
+
+Funções de utilidade servem como uma forma de medir a preferência de uma ação em relação a outra,
+e serão usadas em MDPs como uma função medidora de cada estado da MDP.
+
+\newpage
+
+\subsection{MDPs}
+
+Considere que existe um robô que transita no espaço de estados mostrado na Figura 3. Cada estado
+possue uma recompensa, sendo os estados terminais $(4, 3)$ e $(4, 2)$ com recompensa +1 e -1
+respectivemente e em todos os outros estados recomensa -0.04.
+
+\begin{figure}[h]
+  \begin{center}
+    \includegraphics[scale=0.4]{imgs/grid4x3.png}
+  \end{center}
+  \caption{O robô começa na posição $(1, 1)$. Os estados terminais em $(4, 3)$ e $(4, 2)$ tem
+  recompensas +1 e -1 respectivamente. Em todo outro estado a recompensa é de -0.04. O quadro a
+  direita indica que com probabilidade 0.8 o robô consegue se movimentar na direção desejada. Com
+  0.1 de probabilidade o robô movimenta-se $90^o$ a esquerda e com 0.1 $90^o$ a direita.}
+\end{figure}
+
+Se o ambiente fosse determinístico, achar o melhor caminho seria fácil, consistindo-se apenas de
+uma busca pelo espaço de estados. No entanto, o robô não é confiável, já que tanto os sensores
+quanto motores são longe de ideais. Isso significa que o robô, com probabilidade 0.8, consegue de
+fato ir para o estado adjacente desejado, mas com probabilidade 0.2 o agente se move para qualquer
+um dos dois outros estados a $90^o$ com distribuição uniforme.
+
+Assumindo-se o ambiente como totalmente observável, então a solução para este problema se trata de
+se achar a melhor ação em todos os estados, já que se ação falhar teremos uma melhor ação para o
+estado seguinte.
+
+Chamamos de modelo de transição o resultado de cada ação em cada estado. Pelo ambiente neste
+problema ser estocástico, então representamos o modelo de transição como a probabilidade
+$P(s'|s,a)$, ou seja, a probabilidade de se ir para um estado seguinte $s'$ dado o estado atual $s$
+e a ação $a$ do agente.
+
+No exemplo dado a recompensa pode ser vista como aditiva, pois a utilidade dos estados pode ser
+representada como:
+
+\begin{equation*}
+  U([s_0,s_1,s_2,...]) = R(s_0) + R(s_1) + R(s_2) + ...
+\end{equation*}
+
+Outro jeito de se representar recompensas é por meio de recompensas descontadas:
+
+\begin{equation*}
+  U([s_0,s_1,s_2,...]) = \gamma R(s_0) + \gamma^2 R(S_1) + \gamma^3 R(S_2) + ...
+\end{equation*}
+
+O fator de desconto $\gamma$ é um número entre 0 e 1, e representa a relação entre tempo e
+recompensa. Um agente que use $\gamma = 0$ não se preocupam tanto com recompensas futuras, enquanto
+que quando $\gamma = 1$ o agente se preocupa com a recompensa acumulada.
+
+Um problema que seja totalmente observável, tenha ambiente estocástico e um modelo de transição
+markoviano é chamado de um processo de decisão markoviano (MDP).
+
+\subsection{Políticas ótimas}
+
+Chamamos de política a sequência de ações de um agente em uma MDP. Uma política ótima é aquela em
+que a utilidade esperada é maximal. Ou seja, queremos uma política $\pi$ tal que:
+
+\begin{equation*}
+  U^\pi(s) = E\left[\sum_{t=0}^\infty \gamma^t R(S_t)\right]
+\end{equation*}
+
+Vamos denotar uma política ótima como $\pi^*$. Portanto:
+
+\begin{equation*}
+  \pi^*(s) = \argmax_\pi U^\pi(s) = \argmax_{a \in A(s)} \sum_{s'} P(s'|s,a)U(s')
+\end{equation*}
+
+Onde $A(s)$ é o conjunto de possíveis ações no estado $s$. Para acharmos políticas ótimas
+precisamos, portanto, achar o $P(s'|s,a)U(s')$ maximal. Para isso usamos a chamada equação de
+Bellman\footnote{Em homenagem a Richard Bellman (1957).}:
+
+\begin{equation*}
+  U(s) = R(s) + \gamma \max_{a \in A(s)} \sum_{s'} P(s'|s,a)U(s')
+\end{equation*}
+
+Usando a equação de Bellman no nosso exemplo do robô, temos que, no estado inicial $(1, 1)$:
+
+\begin{align*}
+  U(1, 1) = -0.04 + \gamma \max[&0.8 U(1, 2) + 0.1 U(2, 1) + 0.1 U(1, 1), &(Cima) \\
+                                &0.9 U(1, 1) + 0.1 U(1, 2), &(Esquerda) \\
+                                &0.9 U(1, 1) + 0.1 U(2, 1), &(Baixo) \\
+                                &0.8 U(2, 1) + 0.1 U(1, 2), 0.1U(1, 1)] &(Direita)
+\end{align*}
+
+Após calcularmos as utilidades de cada estado vemos que a melhor decisão é ir para cima.
+
+\section{Aprendizado Baseado em Reforço}
 
 \newpage
 \printbibliography

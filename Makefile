@@ -1,5 +1,5 @@
 all:
-	make clean; ./pdfy.sh
+	make clean; ./pdfy.sh && evince monografia.pdf
 
 .PHONY: clean
 clean:
