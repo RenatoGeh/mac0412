@@ -6,6 +6,7 @@
 \usepackage{graphicx}
 \usepackage{mathtools}
 \usepackage{amsthm}
+\usepackage{amsfonts}
 \usepackage[top=1.0in,bottom=1.0in]{geometry}
 \usepackage{hyperref}
 \usepackage[singlelinecheck=false]{caption}
@@ -87,7 +88,7 @@
   A proposta deste trabalho é apresentar os conceitos de aprendizado baseado em reforço com o uso
   de processos de decisão markovianos, redes neurais artificiais, como aplicar aprendizado em redes
   neurais, as especificações de \textit{hardware} tanto do Atari 2600 quanto do NES e finalmente
-  uma proposta de como aplicar aprendizado em um agente jogador automático.
+  analisar como foi aplicado aprendizado em um agente jogador automático.
 
   Este trabalho foi baseado no artigo da Google DeepMind \textit{Human-level control through deep
   reinforcement learning}\cite{mnih-et-al}, onde Mnih \textit{et al} explicam um novo algoritmo de
@@ -166,8 +167,8 @@ composta por:
   &Cabra, \quad Urso \\
   &Grama, \quad Carne \\
   &Come(X, Y) \\
-  &\forall X, Come(X, Grama) \to Cabra \\
-  &\forall X, Come(X, Carne) \to Urso
+  &\forall x, Come(x, Grama) \to Cabra \\
+  &\forall x, Come(x, Carne) \to Urso
 \end{align*}
 
 No entanto, é fácil notar que quanto mais seres incluírmos no nosso mundo, mais regras precisamos
@@ -324,7 +325,7 @@ e serão usadas em MDPs como uma função medidora de cada estado da MDP.
 
 Considere que existe um robô que transita no espaço de estados mostrado na Figura 3. Cada estado
 possue uma recompensa, sendo os estados terminais $(4, 3)$ e $(4, 2)$ com recompensa +1 e -1
-respectivemente e em todos os outros estados recomensa -0.04.
+respectivamente e em todos os outros estados recomensa -0.04.
 
 \begin{figure}[h]
   \begin{center}
@@ -410,7 +411,7 @@ Após calcularmos as utilidades de cada estado vemos que a melhor decisão é ir
 Considere uma chipanzé que daremos o nome de Lucy. Um grupo de cientistas deseja testar a
 inteligência de Lucy por meio de aprendizado baseado em reforço. Para isso eles devem ter um
 objetivo para Lucy: existem três botões, $A$, $B$ e $C$; o objetivo é apertar os três botões na
-sequência $B$, $A$, $C$. =
+sequência $B$, $A$, $C$.
 
 Vamos considerar a sequência $ABC$ como apertar os botões $A$, $B$ e $C$ nesta ordem. Esta regra
 vale também para todas as outras combinações de sequência. Vamos considerar o $i$-ésimo botão como
@@ -465,6 +466,224 @@ recompensa $R(s,a)$ e em seguida atualiza $Q(s,a)$ com os novos dados encontrado
 Onde $\alpha$ é chamada de taxa de aprendizado, e é normalmente igual a 0.1. Uma taxa de
 aprendizado alta indica que o algoritmo considera mais os novos termos ao que foi visto antes. Uma
 taxa baixa de aprendizado indica que o algoritmo considera mais a média de termos vistos.
+
+\section{Redes Neurais}
+
+A área de Inteligência Artificial sempre buscou inspirações na fisiologia humana, principalmente no
+orgão que mais nos diferencia dos outros animais: o cérebro. O cérebro consiste de vários neurônios
+que, interligados em conjuntos, transmitem informação através de sinapses. A ideia de Redes Neurais
+é tentar imitar esta função fisiológica.
+
+Redes Neurais são compostas por nós, ou unidades, conectadas por arestas direcionadas com pesos
+associados. Cada aresta $ij$ -- ou seja, que conecta uma unidade $i$ a outra unidade $j$ -- propaga
+uma ativação $a_i$ de $i$ para $j$. Além disso, o peso de cada aresta, que simboliza a força do
+sinal da conexão, será denotado como $w_{ij}$. $a_0$ tem valor inicial 1.
+
+A entrada da rede neural é dada por:
+
+\begin{equation*}
+  in_j = \sum_{i=0}^n w_{ij} a_i
+\end{equation*}
+
+Em seguida, aplica-se uma função de ativação $g$ para se derivar a saída:
+
+\begin{equation*}
+  a_j = g(in_j) = g \left(\sum_{i=0}^n w_{ij} a_i\right)
+\end{equation*}
+
+\begin{figure}[h]
+  \centering {
+    \includegraphics[scale=0.35]{imgs/neuron.png}
+  }
+  \caption{Um modelo para um neurônio. Ativação de saída da unidade é $a_j = g(\sum_{i=0}^n w_{ij}
+    a_i)$, onde $a_i$ é a ativação da saída da unidade $i$ e $w_{ij}$ é o peso da aresta da unidade
+    $i$ para esta unidade.}
+\end{figure}
+
+A função de ativação é uma função limitadora em que normalizamos a saída em um número entre 0 e 1.
+Exemplos de funções de ativação são as funções \textit{hard threshold} e sigmóide, mostradas na
+Figura 4. Se a rede usa uma função de \textit{hard threshold}, então a chamamos de perceptron. No
+caso de uma sigmóide chamamos de um perceptron sigmóide. As duas funções de ativação garantem a
+propriedade da rede neural de representar uma função não-linear. Porém, a função sigmóide tem o
+benefício de ser diferenciável, enquanto que a \textit{hard threshold} não é diferenciável em 0.
+
+\begin{figure}[h]
+  \centering {
+    \includegraphics[scale=0.125]{imgs/hthreshold.png}
+    \includegraphics[scale=0.125]{imgs/sigmoid.png}
+  }
+  \caption{À esquerda a função \textit{hard threshold} com saída 0/1. À direita a função sigmoide
+    $\frac{1}{1+e^{-z}}$.}
+\end{figure}
+
+Redes neurais são divididas em camadas. Visualizando as camadas em um espaço unidimensional como
+uma reta, poderíamos dizer que as unidades mais ``à direita'' são os neurônios de saída. Cada
+unidade de saída representa uma classe de saída. Para variáveis discretas, se tivermos $n$
+possíveis soluções, teremos $n$ diferentes unidades representando cada solução. No caso de
+variáveis contínuas podemos representar a função resultante como uma função linear por partes, com
+cada função linear como solução. ``À esquerda'' temos as unidades de entrada, que corresponderão
+ao primeiro estímulo da rede ao conjunto de treino. Entre as unidades de entrada e de saída podemos
+ter várias outras camadas chamadas de camadas ocultas.
+
+Aprendizado em redes neurais depende de sua função de ativação. Podemos usar a regra de aprendizado
+de perceptron ou gradient descent para regressão.
+
+\section{Hardware}
+
+Nesta seção veremos as especificações de hardware do Atari 2600 e do Nintendo Entertainment System
+(NES).
+
+\subsection{Atari 2600}
+
+O Atari 2600 é uma plataforma de jogos criada em 1977 pela Atari Inc., e era baseado na tecnologia
+MOS 6507, um microprocessador 8-bits que possuía 8 KB de memória. O microprocessador possuía 28
+pinos para configuração, com 13 pinos para endereçamento de memória e 8 para instruções. Os 7 pinos
+restantes eram usados para energia, ciclos de clock, reset e controle de escrita e leitura do CPU.
+
+O microprocessador operava em 1.19 MHz, com 128 bytes de RAM. A paleta de cores em formatos NTSC
+era de 128 cores, enquanto que em formatos PAL o Atari 2600 operava em 104 cores. Vamos considerar
+nesta monografia que a paleta de cores utilizada possue 128 cores. A tela era composta de 210
+$\times$ 160 pixels. Além disso, devido a limitações de memória, o Atari 2600 limitava q quantidade
+de artefatos mostrados na tela, separando cada objeto em dois conjuntos: par e ímpar. A cada frame,
+um dos conjuntos era impresso na tela enquanto que o outro era suprimido. No frame seguinte os
+conjuntos eram invertidos.
+
+Por causa disso, em Mnih \textit{et al}\cite{mnih-et-al}, simplifica-se a tela para que a
+complexidade computacional não fique demasiadamente grande.
+
+\subsection{Nintendo Entertainment System (NES)}
+
+O NES é baseado em um microprocessador de 8-bit rodando a 1.79Hz. Criado em 1983, ele possuía 2 KB
+de RAM, com uma paleta de cores de 48 cores e 6 tons de cinza. A resolução padrão do NES é de 256
+$\times$ 240 pixels. Possuía 16 pinos para configuração, com um extensor de 15 pinos.
+
+Na memória do NES, haviam endereços específicos para atributos como vida do jogador, coordenadas na
+tela e quantas tentativas restantes o jogador possuía até que o jogo declarasse que o jogador
+perdeu. Por exemplo, em Super Mario Bros. o byte \texttt{0x757} contém o número de vidas do
+jogador, o byte \texttt{0x75F} contém o mundo atual e \texttt{0x760} mostra o nível atual. O NES
+rodava a 60 frames por segundo.
+
+Em \textit{The First Level of Super Mario Bros. is Easy with Lexicographic Orderings and Time
+Travel...\small after that it gets a little tricky}, Murphy utiliza esses endereços para determinar
+se o jogador está ganhando, construindo uma função objetivo que devemos maximizar.
+
+\section{Automatização de um Agente Jogador}
+
+Nesta seção veremos duas maneiras de se construir um agente jogador automático.
+
+Na primeira subseção vamos ver como Mnih \textit{et al} criaram um jogar automático para Atari 2600
+onde a forma que o agente joga depende de experiências anteriores, sendo uma aplicação de
+aprendizado de máquina.
+
+Na segunda subseção veremos como usar uma função objetivo extraída a partir do hardware de um
+Nintendo Entertainment System para se criar um jogador automático que joga a partir de um algoritmo
+guloso que tenta maximizar a recompensa dada pelos bits que representam os pontos.
+
+\subsection{Um agente jogador em Atari 2600}
+
+Esta subseção se baseia nos estudos publicados em \textit{Playing Atari with Deep Reinforcement
+Learning}\cite{dqn}.
+
+Vamos definir que um ambiente $\mathcal{E}$ é um jogo de Atari sendo jogado pelo agente. Além
+disso, podemos dizer que existe um conjunto de ações legais possíveis $\mathcal{A}$ que o agente
+deve escolher no time-step $t$. Chamamos uma ação legal no time-step $t$ como $a_t$. Vamos
+considerar que $\mathcal{E}$ é estocástico. A cada time-step, o agente observa uma imagem $x_t \in
+\mathbb{R}^d$, que é representado como um vetor de pixels da tela no instante $t$. Adicionalmente
+o agente recebe uma recompensa $r_t$ que significa a diferença da pontuação do jogo.
+
+O ambiente é parcialmente observável pois o agente apenas observa imagens da tela atual. Portanto
+vamos considerar as sequências de ações e observações como o vetor $s_t=[x_1,a_1,...,a_{t-1},x_t]$
+e tentarmos aprendermos estratégias a partir destas sequências. Podemos considerar que todas as
+sequências do jogo terminam após um número finito de time-steps, o que nos permite definir o
+problema como uma MDP finita em que cada sequência é um estado distinto. A partir disso podemos
+considerar a automatização do agente como um aprendizado baseado em reforço na MDP.
+
+Vamos considerar que as recompensas tem desconto $\gamma$ por time-step. Ou seja:
+
+\begin{equation*}
+  R_t = \sum_{t'=t}^T \gamma^{t'-t}r_{t'}
+\end{equation*}
+
+Onde $T$ é o time-step final do jogo. Assim, determinamos que a função ótima $Q^*$ é dada por:
+
+\begin{equation*}
+  Q^*(s,a) = \max_\pi E[R_t|s_t=s, a_t=a, \pi]
+\end{equation*}
+
+Onde $\pi$ é a política que mapeia sequências a ações. Usando a equação de Bellman vista na seção
+sobre MDPs, temos que:
+
+\begin{equation*}
+  Q^*(s,a) = E_{s' \sim \mathcal{E}} \left[r+\gamma\max_{a'}Q^*(s',a')|s,a\right]
+\end{equation*}
+
+A estratégia ótima é selecionar a ação $a'$ a fim de maximizar o valor esperado de $r+\gamma Q^*(s,
+a')$. Podemos então usar a equação de Bellman para achar uma política ótima iterando pelos valores
+de $Q_i$ até convergirmos. No entanto, esta solução é imprática pois estimamos cada função $Q$
+separadamente para cada sequência. Portanto precisamos usar uma função de aproximação que estime
+$Q(s,a;\theta) \approx Q^*(s,a)$, como uma rede neural. Dizemos uma função de rede neural
+aproximadora com pesos $\theta$ uma Q-network. Podemos treinar uma Q-network minimalizando a
+sequência de funções perdas $L_i(\theta_i)$:
+
+\begin{equation*}
+  L_i(\theta_i) = E_{s,a \sim \rho(\cdot)} \left[(y_i - Q(s,a;\theta_i))^2\right]
+\end{equation*}
+
+Onde $y_i = E_{s' \sim \mathcal{E}} [r+\gamma\max_{a'}Q(s',a';\theta_{i-1})|s,a]$ é o objetivo da
+iteração $i$ e $\rho(s, a)$ é a distribuição de probabilidade sobre as sequências $s$ e ações $a$
+e será chamada de distribuição de comportamento.
+
+A partir disso podemos tomar o gradiente de $L_i(\theta_i)$ diferenciando com respeito aos pesos
+$\theta_i$ e aplicarmos gradient descent estocástico para acharmos um máximo local que corresponda
+à uma política ótima local.
+
+A partir disso podemos construir um jogador automático. Os experimentos efetuados por Mnih \textit{
+et al} podem ser vistos em:
+\url{http://home.uchicago.edu/~arij/journalclub/papers/2015\_Mnih\_et\_al.pdf}.
+
+\subsection{Um agente jogador em NES}
+
+A abordagem usada por T. Murphy em \cite{dr-murphy} é usar os bytes da memória do NES para decidir
+se o jogador está ganhando. Por exemplo, no caso de Super Mario Bros., começa-se o jogo em \texttt{
+World 1-1} e em seguida \texttt{World 1-2}. Então podemos visualizar um agente que sempre quer que
+nós ``aumentemos'' o valor do mundo. No entanto, após \texttt{World 1-4}, temos \texttt{World
+2-1}. Portanto, considerarmos apenas os números contidos na memória não é o bastante. T. Murphy
+sugere usar uma ordem lexicográfica, tornando \texttt{World 2-1} $>$ \texttt{World 1-4}. Portanto,
+podemos considerar um par lexicográfico $\langle w, l \rangle$ tal que:
+
+\begin{equation*}
+  \langle w_1, l_1 \rangle < \langle w_2, l_2 \rangle
+\end{equation*}
+
+Se $w_1=w_2$ e $l_1<l_2$ ou se $w_1<w_2$ seja qual for os valores de $l_1$ e $l_2$. Deste jeito
+podemos usar combinações aparentemente desconexas e junta-las de forma racional, por exemplo:
+$\langle$mundo, nível, posição no eixo $x\rangle$.
+
+A partir disso, podemos construir uma função objetivo que monitora a memória de um objetivo (por
+exemplo a vida do jogador). Tomando em conta várias funções objetivos, podemos construir um jogador
+automático.
+
+Para construir estas funções objetivos, é preciso treinar o agente. Com um conjunto de treino que
+corresponde a um jogador, o agente deve monitorar as várias mudanças na memória e em seguida criar
+uma função objetivo para cada endereço de memória. Como foi visto na seção de Aprendizado de
+Máquina, podemos criar uma função que aproxima estas mudanças. A função resultante é a função
+objetivo $L_i$ para o endereço da memória $M_i$.
+
+Para reduzir a aleatoriedade do processo de aprendizado, designa-se um peso para cada função
+objetivo. Uma função objetivo ideal toma o mínimo valor no primeiro frame e o maximal no último
+frame, já que queremos ordenar lexicograficamente a fim de ``avançarmos'' no jogo.
+
+Após atribuirmos pesos às funções objetivo aprendidas, faz-se uma busca pela melhor política que
+maximiza as funções objetivo.
+
+Os experimentos efetuados por T. Murphy pode ser isto em:
+\url{http://www.cs.cmu.edu/~tom7/mario/mario.pdf}.
+
+\section{Comparação}
+
+Nesta seção comparamos os dois métodos de aprendizado para a criação de um jogador automatizado.
+
+
 
 \newpage
 \printbibliography
