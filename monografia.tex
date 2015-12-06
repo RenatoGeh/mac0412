@@ -572,12 +572,15 @@ se o jogador está ganhando, construindo uma função objetivo que devemos maxim
 Nesta seção veremos duas maneiras de se construir um agente jogador automático.
 
 Na primeira subseção vamos ver como Mnih \textit{et al} criaram um jogar automático para Atari 2600
-onde a forma que o agente joga depende de experiências anteriores, sendo uma aplicação de
-aprendizado de máquina.
+onde a forma que o agente joga depende exclusivamente do que o agente visualiza na tela. Isso é
+feito usando processos de decisão markovianos (MDPs) para tomar ações baseado em um ambiente
+parcialmente observável.
 
 Na segunda subseção veremos como usar uma função objetivo extraída a partir do hardware de um
 Nintendo Entertainment System para se criar um jogador automático que joga a partir de um algoritmo
-guloso que tenta maximizar a recompensa dada pelos bits que representam os pontos.
+guloso que tenta maximizar a recompensa dada pelos bits que representam os pontos. A extração das
+funções objetivo é dado por conjuntos de treino, e aprende as funções objetivo a partir da análise
+do uso da memória do NES.
 
 \subsection{Um agente jogador em Atari 2600}
 
