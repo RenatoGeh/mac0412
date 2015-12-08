@@ -70,6 +70,7 @@
     \Large
     Renato Lui Geh
 
+    NUSP: 8536030
     \vfill
     \Large
     Universidade de São Paulo
@@ -167,8 +168,9 @@ composta por:
   &Cabra, \quad Urso \\
   &Grama, \quad Carne \\
   &Come(X, Y) \\
-  &\forall x, Come(x, Grama) \to Cabra \\
-  &\forall x, Come(x, Carne) \to Urso
+  &Animal(Cabra), \quad Animal(Urso) \\
+  &\forall x, Animal(x) \land Come(x, Grama) \to Cabra \\
+  &\forall x, Animal(x) \land Come(x, Carne) \to Urso
 \end{align*}
 
 No entanto, é fácil notar que quanto mais seres incluírmos no nosso mundo, mais regras precisamos
@@ -188,9 +190,9 @@ seguinte tabela de probabilidades condicionais:
     \begin{tabular}{l | c  c}
       Animal & $P(Animal=x | Come=grama)$ & $P(Animal=x | Come=carne)$ \\
       \hline
-      Cabra & 0.857 & 0.00 \\
+      Cabra & 0.857 & 0.000 \\
       Humano & 0.143 & 0.250 \\
-      Urso & 0.00 & 0.750 \\
+      Urso & 0.000 & 0.750 \\
     \end{tabular}
   \end{center}
 \end{table}
@@ -291,18 +293,18 @@ Modern Approach}\cite{aima}.
 A partir dos axiomas de preferência podemos construir uma função de utilidade que representa as
 preferências de um agente. De fato, a partir dos axiomas podemos construir as seguintes
 consequências para funções de utilidade\footnote{A prova para estas construções podem ser lidas em
-\textit{Theory of Games and Economic Behavior}\cite{neumann-morgenstern}}:
+\textit{Theory of Games and Economic Behavior}\cite{neumann-morgenstern}.}:
 
 \begin{itemize}
   \item \textbf{Existência de uma função de utilidade}: Se um agente obedece os axiomas de
-    utilidade então existe uma função de utilidade que $U$ tal que $U(A) > U(B)$ se e somente se
+    utilidade então existe uma função de utilidade $U$ tal que $U(A) > U(B)$ se e somente se
     $A \succ B$. Analogamente existe um $U$ tal que $U(A) = U(B)$ se e somente se $A \sim B$.
   \item \textbf{Utilidade esperada de uma loteria}: A utilidade de uma loteria é a soma das
     probabilidades dos possíveis resultados vezes a utilidade do resultado. Ou seja, $U(L=[p_1,S_1;
     ...;p_n,S_n]) = \sum_i p_iU(S_i)$.
 \end{itemize}
 
-Uma loteria $L$ é o conjuntod de todos os possíveis resultados que podem ocorrer com suas
+Uma loteria $L$ é o conjunto de todos os possíveis resultados que podem ocorrer com suas
 respectivas probabilidades, ou seja, $L = [p_1,S_1;...;p_n,S_n]$, onde $p_1,...,p_n$ são as
 probabilidades dos resultados $S_1,...,S_n$.
 
@@ -325,7 +327,7 @@ e serão usadas em MDPs como uma função medidora de cada estado da MDP.
 
 Considere que existe um robô que transita no espaço de estados mostrado na Figura 3. Cada estado
 possue uma recompensa, sendo os estados terminais $(4, 3)$ e $(4, 2)$ com recompensa +1 e -1
-respectivamente e em todos os outros estados recomensa -0.04.
+respectivamente e em todos os outros estados recompensa -0.04.
 
 \begin{figure}[h]
   \begin{center}
@@ -344,8 +346,8 @@ fato ir para o estado adjacente desejado, mas com probabilidade 0.2 o agente se 
 um dos dois outros estados a $90^o$ com distribuição uniforme.
 
 Assumindo-se o ambiente como totalmente observável, então a solução para este problema se trata de
-se achar a melhor ação em todos os estados, já que se ação falhar teremos uma melhor ação para o
-estado seguinte.
+se achar a melhor ação em todos os estados, já que se a ação falhar teremos uma melhor ação para o
+estado seguinte seja qual ele for.
 
 Chamamos de modelo de transição o resultado de cada ação em cada estado. Pelo ambiente neste
 problema ser estocástico, então representamos o modelo de transição como a probabilidade
@@ -388,8 +390,8 @@ Vamos denotar uma política ótima como $\pi^*$. Portanto:
 \end{equation*}
 
 Onde $A(s)$ é o conjunto de possíveis ações no estado $s$. Para acharmos políticas ótimas
-precisamos, portanto, achar o $P(s'|s,a)U(s')$ maximal. Para isso usamos a chamada equação de
-Bellman\footnote{Em homenagem a Richard Bellman (1957).}:
+precisamos, portanto, achar o $\sum_{s'}P(s'|s,a)U(s')$ maximal. Para isso usamos a chamada equação
+de Bellman\footnote{Em homenagem a Richard Bellman (1957).}:
 
 \begin{equation*}
   U(s) = R(s) + \gamma \max_{a \in A(s)} \sum_{s'} P(s'|s,a)U(s')
@@ -423,14 +425,19 @@ eles precisam transmitir o conhecimento de que a sequência $BAC$ é a meta atra
 universal: bananas. Os testes de Lucy são feitos diariamente, ou seja, cada dia é um teste. Em cada
 teste Lucy deve apertar alguma combinação de três botões. Porém, em cada teste, se o $i$-ésimo
 botão que Lucy apertar corresponder ao $i$-ésimo botão da sequência meta, então os cientistas dão
-um pedaço de banana para Lucy. Se Lucy completar a sequência completa em um teste, os cientistas
-dão uma banana inteira para Lucy.
+um pedaço de banana para Lucy. Se Lucy completar a sequência inteira em um teste, os cientistas dão
+uma banana inteira para Lucy.
 
 O exemplo acima ilustra o uso de aprendizado baseado em reforço. A sequência de botões corresponde
 aos estados $S$, as ações de apertar o $i$-ésimo botão corresponde as ações $A(i)$ no estado $i$,
-as recompensas $R(s,a)$ no estado $s$ correspondem às recompensas $R(s,a)$ e o modelo de transição
-$P(s'|s,a)$ corresponde a probabilidade de Lucy ir ao próximo estado dado que ela executou a ação
-$a$ de apertar um botão e dado que ela estava no estado $s$.
+as recompensas $R(s,a)$ no estado $s$ correspondem às bananas, dadas ou não, no caso de Lucy
+escolher a ação $a$, e o modelo de transição $P(s'|s,a)$ corresponde a probabilidade de Lucy ir ao
+próximo estado dado que ela executou a ação $a$ de apertar um botão e dado que ela estava no estado
+$s$. No caso de Lucy poderíamos ver o problema como determinístico. Mas considere que Lucy utilize
+um \textit{joystick} para controlar um braço mecânico que aperta os botões. Lucy não possue muita
+experiência com este braço, e portanto existe uma probabilidade de Lucy decidir apertar um botão e
+infelizmente conduzir o braço de maneira que este aperta outro botão. Nesta situação temos um
+ambiente estocástico, e podemos usar uma MDP.
 
 Podemos ver que temos as ações $A(s)$ e os estados possíveis $S$ especificados no problema, no
 entanto não sabemos como nosso modelo de transição funciona. Além disso, sabíamos quanto de
@@ -543,8 +550,8 @@ restantes eram usados para energia, ciclos de clock, reset e controle de escrita
 O microprocessador operava em 1.19 MHz, com 128 bytes de RAM. A paleta de cores em formatos NTSC
 era de 128 cores, enquanto que em formatos PAL o Atari 2600 operava em 104 cores. Vamos considerar
 nesta monografia que a paleta de cores utilizada possue 128 cores. A tela era composta de 210
-$\times$ 160 pixels. Além disso, devido a limitações de memória, o Atari 2600 limitava q quantidade
-de artefatos mostrados na tela, separando cada objeto em dois conjuntos: par e ímpar. A cada frame,
+$\times$ 160 pixels. Além disso, devido a limitações de memória, o Atari 2600 limitava a quantidade
+de artefatos mostrados na tela, separando cada objeto em dois conjuntos. A cada frame,
 um dos conjuntos era impresso na tela enquanto que o outro era suprimido. No frame seguinte os
 conjuntos eram invertidos.
 
@@ -571,16 +578,16 @@ se o jogador está ganhando, construindo uma função objetivo que devemos maxim
 
 Nesta seção veremos duas maneiras de se construir um agente jogador automático.
 
-Na primeira subseção vamos ver como Mnih \textit{et al} criaram um jogar automático para Atari 2600
-onde a forma que o agente joga depende exclusivamente do que o agente visualiza na tela. Isso é
-feito usando processos de decisão markovianos (MDPs) para tomar ações baseado em um ambiente
+Na primeira subseção vamos ver como Mnih \textit{et al} criaram um jogador automático para Atari
+2600 onde a forma que o agente joga depende exclusivamente do que o agente visualiza na tela. Isso
+é feito usando processos de decisão markovianos (MDPs) para tomar ações baseadas em um ambiente
 parcialmente observável.
 
 Na segunda subseção veremos como usar uma função objetivo extraída a partir do hardware de um
 Nintendo Entertainment System para se criar um jogador automático que joga a partir de um algoritmo
-guloso que tenta maximizar a recompensa dada pelos bits que representam os pontos. A extração das
-funções objetivo é dado por conjuntos de treino, e aprende as funções objetivo a partir da análise
-do uso da memória do NES.
+que tenta maximizar a recompensa dada pelos bits que representam os pontos. A extração das funções
+objetivo é dada por conjuntos de treino, e aprende as funções objetivo a partir da análise do uso
+da memória do NES.
 
 \subsection{Um agente jogador em Atari 2600}
 
@@ -677,16 +684,61 @@ objetivo. Uma função objetivo ideal toma o mínimo valor no primeiro frame e o
 frame, já que queremos ordenar lexicograficamente a fim de ``avançarmos'' no jogo.
 
 Após atribuirmos pesos às funções objetivo aprendidas, faz-se uma busca pela melhor política que
-maximiza as funções objetivo.
+maximiza as funções objetivo. Esta busca inclue as futuras possíveis combinações de decisões que
+o agente pode tomar. Uma observação interessante que T. Murphy faz em seu artigo é como o agente
+procura o melhor futuro, mesmo que inicialmente aleatório, para que tenha melhor resultado. Isso
+quer dizer que, em situações que normalmente o agente perderia o jogo devido a algum fator
+aleatório (por exemplo algum item que tenha chance 0.001\% de aparecer no jogo e que seria o único
+jeito de o agente não perder o jogo), o jogador automático deliberadamente pausa o jogo, esperando
+o melhor futuro possível tal que o gerador pseudo-aletório tenha uma \textit{seed} conveniente e,
+assim que este futuro se torna possível, resume o jogo, livrando-se da situação perigosa.
 
-Os experimentos efetuados por T. Murphy pode ser isto em:
+Uma outra observação intrigante que T. Murphy cita é quando o agente estava prestes a perder um
+jogo de Tetris. No segundo que o agente iria perder o jogo, este pausou o jogo, já que o único
+movimento em que o agente não perderia seria nunca mais jogar.
+
+Os experimentos efetuados por T. Murphy pode ser lidos em:
 \url{http://www.cs.cmu.edu/~tom7/mario/mario.pdf}.
 
 \section{Comparação}
 
-Nesta seção comparamos os dois métodos de aprendizado para a criação de um jogador automatizado.
+Nesta seção comparamos os dois métodos de criação de um jogador automatizado.
 
+Podemos ver que o primeiro método de automatização é mais similar ao comportamento de humanos (e o
+mais desejado na área de Inteligência Artificial). Apesar de o segundo agente ter boa performance,
+isso se deve ao jogador automático ter informações que um jogador humano não teria (acesso à
+memória e previsão do futuro).
 
+Portanto, apesar de ambos serem agentes automáticos jogadores, ambos possuem grandes diferenças em
+termos de abordagem e do que se deseja atingir como objetivo. O agente jogador visto em Mnih
+\textit{et al} pode ser visto como uma tentativa de se simular o comportamento humano, enquanto que
+o visto em T. Murphy se trata de uma tentativa de se ter um bom agente jogador automático
+(idealmente) generalizável para qualquer jogo de NES.
+
+Ambos possuem seus méritos, no entanto, como na área de Inteligência Artificial queremos nos
+aproximar mais de um agente que se comporte de forma humana (e ao mesmo tempo de forma racional),
+pode-se dizer que o artigo \cite{mnih-et-al} é mais interessante do ponto de vista de se tentar
+criar um agente que seja mais geral possível.
+
+Com relação aos métodos de aprendizado, enquanto que \cite{mnih-et-al} utiliza um agente em um
+ambiente estocástico, \cite{dr-murphy} considera o ambiente deterministico, onde cada função de
+objetivo tende sempre a crescer. Considerando que existem jogos em que é preciso ``sacrificar''
+certos objetivos para atingir uma maior recompensa, o agente citado em T. Murphy não se sairia
+muito bem (como é visto nos experimentos em \cite{dr-murphy}).
+
+\section{Conclusão}
+
+Infelizmente um agente jogador automatizado ideal está longe de se tornar realidade. No entanto,
+como é visto nos artigos citados durante esta monografia, é claro que o uso de Aprendizado de
+Máquina é muito promissor na criação de um agente jogador automatizado.
+
+A ideia de se achar um jogador ideal pode não parecer muito inovadora e revolucionária, mas se
+conseguirmos atingir um agente razoavelmente bom, que se comporte de forma similar a um ser humano
+em todos os jogos, estaremos dando um passo enorme na construção de uma inteligência\footnote{Assim
+como foi dito anteriormente, a questão de inteligência é algo que pode tomar páginas e páginas de
+discussão, e portanto é quase impossível decidir se de fato o que for criado é realmente uma
+``inteligência''.}. Especialmente uma que seja ótima em Atari. E se isso não é o que nos torna
+inteligentes, eu não sei o que é.
 
 \newpage
 \printbibliography
